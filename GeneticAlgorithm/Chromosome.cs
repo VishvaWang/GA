@@ -35,9 +35,106 @@ namespace GeneticAlgorithm
 
                 return chromosomes;
             }
+            public static List<Chromosome> Copy(List<Chromosome> chromosomeList)
+            {
+                return chromosomeList.Select(chromosome => chromosome.Clone()).ToList();
+            }
+            
+            public static void Mutation(List<Chromosome> waitMutation)
+            {    //排序,便于找出cBest 
+                waitMutation.Sort();
+                //对每个染色体执行变异
+                waitMutation
+                    .Skip(1)// 跳过第一个,即 cBest
+                    .ToList()
+                    .ForEach(chromosome => chromosome.Mutation());
+            }
+            public static void Crossover(List<Chromosome> waitCrossover)
+            {
+                //cBest 不参与交叉
+                waitCrossover.Sort();
+                var cBest = waitCrossover.First();
+                waitCrossover.RemoveAt(0);
+            
+                //需要交叉的染色体序号
+                List<int> needChromosomeIndexs = new List<int>();
+                for (int i = 0; i < waitCrossover.Count - 1; i++)
+                {
+                    double p = MyMaths.NextDouble(0, 1);
+                    if (p < pc)
+                        needChromosomeIndexs.Add(i);
+                }
+
+                if (needChromosomeIndexs.Count % 2 != 0)
+                    needChromosomeIndexs.Add(waitCrossover.Count - 1);
+            
+                while (needChromosomeIndexs.Count != 0)
+                {
+                    var index1 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
+                    var index2 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
+                
+                    Chromosome chromosome = waitCrossover[index1];
+                    chromosome.Cross(waitCrossover[index2]);
+                
+                    needChromosomeIndexs.Remove(index1);
+                    needChromosomeIndexs.Remove(index2);
+                }
+            
+                waitCrossover.Add(cBest);
+            }
+
+            public static List<Chromosome> Select(List<Chromosome> chromosomes)
+        {    
+            List<Chromosome> selected = new List<Chromosome>();
+            selected.Add(chromosomes.Min().Clone());
+            selected.Add(chromosomes.Min().Clone());
+
+            while (selected.Count < chromosomes.Count)
+                selected.Add(chromosomes[Math.Min(ran.Next(0, chromosomes.Count - 1), ran.Next(0, chromosomes.Count - 1))]);
+
+            return selected;
+        }
+
+            public static void Intensify(List<Chromosome> wantIntensify, Chromosome cBest)
+        {   double[][] x = new double[wantIntensify.Count][];
+            double[][] p = new double[wantIntensify.Count][];
+            double[][] v = new double[wantIntensify.Count][];
+            
+            for (int time = 0; time < Q; time++)//强化Q次
+              for (var k = 0; k< wantIntensify.Count; k++)//
+                  {
+                      if (time == 0) //第一次强化,设置初始化值
+                      {
+                        x[k] = (double[]) wantIntensify[k].encoded.Clone();
+                        p[k] = (double[]) x[k].Clone();
+                        v[k] = new double[V]; 
+                      }
+
+                      for (int i = 0; i < V; i++)
+                      {
+                          var r1 = ran.NextDouble();
+                          var r2 = ran.NextDouble();
+
+                          v[k][i] = 0.729 * (v[k][i] + 2.05 * r1 * (p[k][i] - x[k][i]) +
+                                             2.05 * r2 * (cBest[i] - x[k][i]));
+                          x[k][i] = x[k][i] + v[k][i];
+                          if (x[k][i] < 0)
+                              x[k][i] = 0;
+                          if (x[k][i] > 10)
+                              x[k][i] = 10;
+                      }
+      
+                      Chromosome y = new Chromosome((double[]) x[k].Clone());//todo 增加GetFitness()静态方法
+      
+                      if (y.GetFitness() < cBest.GetFitness())
+                          cBest.encoded = y.encoded;
+                      if (y.GetFitness() < wantIntensify[k].GetFitness())
+                          wantIntensify[k].encoded = (double[]) y.encoded.Clone();
+                  }  
+        }
             public double GetFitness()
             {
-                return MainAlgorithm.Fitness(GetDecoded());
+                return MyMaths.Fitness(GetDecoded());
             }
             
             //解码染色体

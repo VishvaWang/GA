@@ -11,7 +11,7 @@ namespace GeneticAlgorithm
         public static List<Ship> ships = Ship.InitShips();
 
         //历史序列集合
-        private static Dictionary<string, double> history = new Dictionary<string, double>();
+        public static Dictionary<string, double> history = new Dictionary<string, double>();
         //初始化染色体数组
         private static List<Chromosome> initialChromosome = Chromosome.initChromsomes();
         static void Main(string[] args)
@@ -19,53 +19,11 @@ namespace GeneticAlgorithm
             Algorithm2();
             Algorithm1();
         }
-
-        private static void Algorithm2()
-        {
-            if (N % 2 != 0)
-                throw new ArgumentException("种群数量必须为偶数");
-            
-            List<Chromosome> generation;
-            Stopwatch sw;
-            TimeSpan ts2;
-            generation = Copy(initialChromosome);
-            //算法二
-
-            //开始计时
-            sw = new Stopwatch();
-            sw.Start();
-
-            for (int i = 0; i < G; i++)
-            {
-                generation.Sort(); //从小到大排列染色体
-                var elite = generation.GetRange(0, N / 2);
-                //精英 进行 选择 ,交叉,变异
-                elite = Select(elite); 
-                Crossover(elite);
-                Mutation(elite);
-
-                Intensify(generation.GetRange(N / 2, N / 2), generation.Min());
-            }
-
-            generation.Sort();
-            Console.WriteLine("方法2最优染色体编码为: " + string.Join(",", generation.First().encoded));
-            Console.WriteLine("方法2最优染色体序列为: " + string.Join(",", generation.First().GetDecoded()));
-            Console.WriteLine("方法2最优适应函数值为: " + generation.First().GetFitness());
-            Console.WriteLine("最优适应函数值为: " + history.Values.Min());
-
-            //结束计时
-            sw.Stop();
-            ts2 = sw.Elapsed;
-            Console.WriteLine("方法2总共花费{0}ms.", ts2.TotalMilliseconds);
-            Console.WriteLine("  ");
-            Console.WriteLine("  ");
-        }
-
         private static void Algorithm1()
         {
             //算法一
             //首先复制初始染色体,注意,因为list是一个引用类型,不能简单的赋值,又因为lsit中存放的也是引用类型,也不能使用浅克隆.
-            var generation = Copy(initialChromosome);
+            var generation = Chromosome.Copy(initialChromosome);
 
             //开始计时
             Stopwatch sw = new Stopwatch();
@@ -79,16 +37,16 @@ namespace GeneticAlgorithm
                 generation.RemoveRange(N / 2, N / 2);
                 //强化前二分之一
 
-                Intensify(generation, generation.Min());
+                Chromosome.Intensify(generation, generation.Min());
 
-                var elite = Copy(generation);
+                var elite = Chromosome.Copy(generation);
 
                 //选择操作
-                elite = Select(elite);
+                elite = Chromosome.Select(elite);
                 //交叉
-                Crossover(elite);
+                Chromosome.Crossover(elite);
                 //变异
-                Mutation(elite);
+                Chromosome.Mutation(elite);
                 generation.AddRange(elite);
             }
 
@@ -105,185 +63,46 @@ namespace GeneticAlgorithm
             Console.WriteLine("  ");
             Console.WriteLine("  ");
         }
-
-        private static List<Chromosome> Copy(List<Chromosome> chromosomeList)
+        private static void Algorithm2()
         {
-            return chromosomeList.Select(chromosome => chromosome.Clone()).ToList();
-        }
-
-        private static void Mutation(List<Chromosome> waitMutation)
-        {    //排序,便于找出cBest 
-            waitMutation.Sort();
-            //对每个染色体执行变异
-            waitMutation
-                .Skip(1)// 跳过第一个,即 cBest
-                .ToList()
-                .ForEach(chromosome => chromosome.Mutation());
-        }
-
-        private static void Crossover(List<Chromosome> waitCrossover)
-        {   
+            if (N % 2 != 0)
+                throw new ArgumentException("种群数量必须为偶数");
             
-            //cBest 不参与交叉
-            waitCrossover.Sort();
-            var cBest = waitCrossover.First();
-            waitCrossover.RemoveAt(0);
-            
-            //需要交叉的染色体序号
-            List<int> needChromosomeIndexs = new List<int>();
-            for (int i = 0; i < waitCrossover.Count - 1; i++)
+            List<Chromosome> generation;
+            Stopwatch sw;
+            TimeSpan ts2;
+            generation = Chromosome.Copy(initialChromosome);
+            //算法二
+
+            //开始计时
+            sw = new Stopwatch();
+            sw.Start();
+
+            for (int i = 0; i < G; i++)
             {
-                double p = MyMaths.NextDouble(0, 1);
-                if (p < pc)
-                    needChromosomeIndexs.Add(i);
+                generation.Sort(); //从小到大排列染色体
+                var elite = generation.GetRange(0, N / 2);
+                //精英 进行 选择 ,交叉,变异
+                elite = Chromosome.Select(elite); 
+                Chromosome.Crossover(elite);
+                Chromosome.Mutation(elite);
+
+                Chromosome.Intensify(generation.GetRange(N / 2, N / 2), generation.Min());
             }
 
-            if (needChromosomeIndexs.Count % 2 != 0)
-                needChromosomeIndexs.Add(waitCrossover.Count - 1);
-            
-            while (needChromosomeIndexs.Count != 0)
-            {
-                var index1 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
-                var index2 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
-                
-                Chromosome chromosome = waitCrossover[index1];
-                chromosome.Cross(waitCrossover[index2]);
-                
-                needChromosomeIndexs.Remove(index1);
-                needChromosomeIndexs.Remove(index2);
-            }
-            
-            waitCrossover.Add(cBest);
+            generation.Sort();
+            Console.WriteLine("方法2最优染色体编码为: " + string.Join(",", generation.First().encoded));
+            Console.WriteLine("方法2最优染色体序列为: " + string.Join(",", generation.First().GetDecoded()));
+            Console.WriteLine("方法2最优适应函数值为: " + generation.First().GetFitness());
+            Console.WriteLine("最优适应函数值为: " + history.Values.Min());
+
+            //结束计时
+            sw.Stop();
+            ts2 = sw.Elapsed;
+            Console.WriteLine("方法2总共花费{0}ms.", ts2.TotalMilliseconds);
+            Console.WriteLine("  ");
+            Console.WriteLine("  ");
         }
-
-        private static List<Chromosome> Select(List<Chromosome> chromosomes)
-        {    
-            List<Chromosome> selected = new List<Chromosome>();
-            selected.Add(chromosomes.Min().Clone());
-            selected.Add(chromosomes.Min().Clone());
-
-            while (selected.Count < chromosomes.Count)
-                selected.Add(chromosomes[Math.Min(ran.Next(0, chromosomes.Count - 1), ran.Next(0, chromosomes.Count - 1))]);
-
-            return selected;
-        }
-
-        private static void Intensify(List<Chromosome> wantIntensify, Chromosome cBest)
-        {   double[][] x = new double[wantIntensify.Count][];
-            double[][] p = new double[wantIntensify.Count][];
-            double[][] v = new double[wantIntensify.Count][];
-            
-            for (int time = 0; time < Q; time++)//强化Q次
-              for (var k = 0; k< wantIntensify.Count; k++)//
-                  {
-                      if (time == 0) //第一次强化,设置初始化值
-                      {
-                        x[k] = (double[]) wantIntensify[k].encoded.Clone();
-                        p[k] = (double[]) x[k].Clone();
-                        v[k] = new double[V]; 
-                      }
-
-                      for (int i = 0; i < V; i++)
-                      {
-                          var r1 = ran.NextDouble();
-                          var r2 = ran.NextDouble();
-
-                          v[k][i] = 0.729 * (v[k][i] + 2.05 * r1 * (p[k][i] - x[k][i]) +
-                                             2.05 * r2 * (cBest[i] - x[k][i]));
-                          x[k][i] = x[k][i] + v[k][i];
-                          if (x[k][i] < 0)
-                              x[k][i] = 0;
-                          if (x[k][i] > 10)
-                              x[k][i] = 10;
-                      }
-      
-                      Chromosome y = new Chromosome((double[]) x[k].Clone());//todo 增加GetFitness()静态方法
-      
-                      if (y.GetFitness() < cBest.GetFitness())
-                          cBest.encoded = y.encoded;
-                      if (y.GetFitness() < wantIntensify[k].GetFitness())
-                          wantIntensify[k].encoded = (double[]) y.encoded.Clone();
-                  }  
-        }
-
-        public static double Fitness(int[] decoded)
-        {    
-            var decodedStr = string.Join(",",decoded);
-            if (history.ContainsKey(decodedStr))
-            {
-                return history[decodedStr];
-            }
-            else
-            {
-                List<Ship> finshed = new List<Ship>();
-                foreach (var index in decoded)
-                {
-                    var i = ships[index];
-                    //todo 暂不需要克隆
-                    i.b = 0;
-                    int s = 2 * T;
-                    int b = 0;
-
-                    //集合A
-                    List<Ship> A = new List<Ship>();
-                    A = finshed.FindAll(j => j.GetD() > i.a);
-
-                    while (i.b + i.l <= L)
-                    {
-                        //集合B
-                        List<Ship> B = new List<Ship>();
-                        B = A.FindAll(j => j.b < i.b + i.l && j.b + j.l > i.b);
-
-                        if (B.Count == 0)
-                        {
-                            s = i.a;
-                            b = i.b;
-                            break;
-                        }
-                        else
-                        {
-                            var j = B.OrderBy(j => j.GetD()).Last();
-                            if (s > j.GetD())
-                            {
-                                s = j.GetD();
-                                b = i.b;
-                            }
-
-                            i.b = j.b + j.l;
-                            B = A.FindAll(j => j.b < i.b + i.l && j.b + j.l > i.b);
-                        }
-                    }
-
-                    i.s = s;
-                    i.b = b;
-                    finshed.Add(i);
-                }
-
-                double[] f = new double[M];
-                finshed.OrderBy(i => i.s);//按照si从小到大排列船舶
-                
-                for (var k = 0; k < f.Length; k++)
-                {
-                    finshed.ForEach(i => i.GenR());//随机生成所有船舶实际到达时间ar 和实际作业时间pr
-                    foreach (var i in finshed) //todo 暂不需要克隆?
-                    {
-                        int time = Math.Max(i.ar, i.s);
-                        List<Ship> A = finshed.FindAll(j => j.GetD() > i.a && j.b < i.b + i.l && j.b + j.l > i.b);
-                        if (time < A.Max(j => j.sr + j.pr))
-                            time = A.Max(j => j.sr + j.pr);
-
-                        i.sr = time;
-                        f[k] = f[k] + i.sr + i.pr - i.ar;
-                    }
-                }
-
-                double mean = f.Average();
-                double devi = MyMaths.StDev(f);
-
-                history[decodedStr] = mean + λ * devi;
-
-                return mean + λ * devi;
-            }
-        }
+        
     }
 }
