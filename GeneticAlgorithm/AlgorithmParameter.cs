@@ -23,6 +23,10 @@ namespace GeneticAlgorithm
         public const int RealArrivalTimeUpper = ArrivalTimeUpper + 5;//实际船舶到达时间上界
         public const int RealProductionTimeUpper = ProductionTimeUpper + 5;//实际作业时间上界
         public const int RealProductionTimeLower = ProductionTimeLower -5;//实际作业时间下界
+        
+        public const int MaxGenerationNoImproved = 10;//
+        public const int NoImprovedCriticalCondition = 1;// 小于等于此数值将认为没有改进
+        
 
         //运行期常量
         public static readonly Random ran = new Random();

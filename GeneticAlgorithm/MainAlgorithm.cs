@@ -18,6 +18,7 @@ namespace GeneticAlgorithm
         {
             Algorithm2();
             Algorithm1();
+            Algorithm3();//注意 方法三由于没有使用排序,蓑衣使用的是generation.Min()而非其他两个的generation.First()
         }
         private static void Algorithm1()
         {
@@ -29,9 +30,26 @@ namespace GeneticAlgorithm
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            for (int i = 0; i < G; i++)
+            double lastMin = 0;
+            
+            for (int i = 0,noIm = 0; i < G; i++)
             {
                 generation.Sort(); //从小到大排列染色体
+                
+                if (i != 0)//至少执行一次
+                {
+                    if (generation.First().GetFitness() - lastMin <= NoImprovedCriticalCondition)//如果没有改进,计数加一
+                    {
+                        noIm++;
+                    }
+
+                }
+                
+                if (noIm >= 5)//
+                {
+                    break;
+                }
+                lastMin = generation.First().GetFitness();//更新 lastmain
 
                 //舍弃适应度函数值较大的后2/1染色体
                 generation.RemoveRange(N / 2, N / 2);
@@ -48,6 +66,7 @@ namespace GeneticAlgorithm
                 //变异
                 Chromosome.Mutation(elite);
                 generation.AddRange(elite);
+                
             }
 
             generation.Sort();
@@ -65,8 +84,6 @@ namespace GeneticAlgorithm
         }
         private static void Algorithm2()
         {
-            if (N % 2 != 0)
-                throw new ArgumentException("种群数量必须为偶数");
             
             List<Chromosome> generation;
             Stopwatch sw;
@@ -77,10 +94,28 @@ namespace GeneticAlgorithm
             //开始计时
             sw = new Stopwatch();
             sw.Start();
+            
+            double lastMin = 0;
 
-            for (int i = 0; i < G; i++)
+            for (int i = 0,noIm = 0; i < G; i++)
             {
                 generation.Sort(); //从小到大排列染色体
+
+                if (i != 0)//至少执行一次
+                {
+                    if (generation.First().GetFitness() - lastMin <= NoImprovedCriticalCondition)//如果没有改进,计数加一
+                    {
+                        noIm++;
+                    }
+
+                }
+                
+                if (noIm >= 5)//
+                {
+                    break;
+                }
+                lastMin = generation.First().GetFitness();//更新 lastmain
+                
                 var elite = generation.GetRange(0, N / 2);
                 //精英 进行 选择 ,交叉,变异
                 elite = Chromosome.Select(elite); 
@@ -100,6 +135,61 @@ namespace GeneticAlgorithm
             sw.Stop();
             ts2 = sw.Elapsed;
             Console.WriteLine("方法2总共花费{0}ms.", ts2.TotalMilliseconds);
+            Console.WriteLine("  ");
+            Console.WriteLine("  ");
+        }
+        private static void Algorithm3()
+        {
+            List<Chromosome> generation;
+            Stopwatch sw;
+            TimeSpan ts3;
+            generation = Chromosome.Copy(initialChromosome);
+            //算法GA
+
+            //开始计时
+            sw = new Stopwatch();
+            sw.Start();
+
+            double lastMin = 0;
+
+            for (int i = 0, noIm = 0; i < G; i++)
+            {    
+                // generation.Sort(); //从小到大排列染色体
+
+                if (i != 0)//至少执行一次
+                {
+                    if (generation.Min().GetFitness() - lastMin <= NoImprovedCriticalCondition)//如果没有改进,计数加一
+                    {
+                        noIm++;
+                    }
+
+                }
+                
+                if (noIm >= 5)//
+                {
+                    break;
+                }
+                lastMin = generation.First().GetFitness();//更新 lastmain
+                //generation.Sort(); //从小到大排列染色体
+                var elite = generation.GetRange(0, N);
+                //精英 进行 选择 ,交叉,变异
+                elite = Chromosome.Select(elite);
+                Chromosome.Crossover(elite);
+                Chromosome.Mutation(elite);
+
+                //Chromosome.Intensify(generation.GetRange(N / 2, N / 2), generation.Min());
+            }
+
+            generation.Sort();
+            Console.WriteLine("方法GA最优染色体编码为: " + string.Join(",", generation.First().encoded));
+            Console.WriteLine("方法GA最优染色体序列为: " + string.Join(",", generation.First().GetDecoded()));
+            Console.WriteLine("方法GA最优适应函数值为: " + generation.First().GetFitness());
+            Console.WriteLine("最优适应函数值为: " + HistoryRecords.Values.Min());
+
+            //结束计时
+            sw.Stop();
+            ts3 = sw.Elapsed;
+            Console.WriteLine("方法GA总共花费{0}ms.", ts3.TotalMilliseconds);
             Console.WriteLine("  ");
             Console.WriteLine("  ");
         }
