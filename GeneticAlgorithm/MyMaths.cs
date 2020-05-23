@@ -105,7 +105,7 @@ namespace GeneticAlgorithm
                 }
 
                 double mean = f.Average();
-                double devi = MyMaths.StDev(f);
+                double devi = StDev(f);
 
                 history[decodedStr] = mean + λ * devi;
 
