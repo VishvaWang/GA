@@ -11,7 +11,7 @@ namespace GeneticAlgorithm
         public static List<Ship> ships = Ship.InitShips();
 
         //历史序列集合
-        public static Dictionary<string, double> history = new Dictionary<string, double>();
+        public static Dictionary<string, double> HistoryRecords = new Dictionary<string, double>();
         //初始化染色体数组
         private static List<Chromosome> initialChromosome = Chromosome.initChromsomes();
         static void Main(string[] args)
@@ -54,7 +54,7 @@ namespace GeneticAlgorithm
             Console.WriteLine("方法1最优染色体编码为: " + string.Join(",", generation.First().encoded));
             Console.WriteLine("方法1最优染色体序列为: " + string.Join(",", generation.First().GetDecoded()));
             Console.WriteLine("方法1最优适应函数值为: " + generation.First().GetFitness());
-            Console.WriteLine("最优适应函数值为: " + history.Values.Min());
+            Console.WriteLine("最优适应函数值为: " + HistoryRecords.Values.Min());
 
             //结束计时
             sw.Stop();
@@ -94,7 +94,7 @@ namespace GeneticAlgorithm
             Console.WriteLine("方法2最优染色体编码为: " + string.Join(",", generation.First().encoded));
             Console.WriteLine("方法2最优染色体序列为: " + string.Join(",", generation.First().GetDecoded()));
             Console.WriteLine("方法2最优适应函数值为: " + generation.First().GetFitness());
-            Console.WriteLine("最优适应函数值为: " + history.Values.Min());
+            Console.WriteLine("最优适应函数值为: " + HistoryRecords.Values.Min());
 
             //结束计时
             sw.Stop();

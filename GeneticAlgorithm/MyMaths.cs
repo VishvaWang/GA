@@ -33,12 +33,16 @@ namespace GeneticAlgorithm
             tmpStDev = Convert.ToSingle(Math.Sqrt((sSum / (arrNum - 1))).ToString());
             return tmpStDev;
         }
+        
+        //计算适应度函数值
         public static double Fitness(int[] decoded)
-        {    
+        {    //数组无法作为key,需要转换成字符串或重写GetHashCode及Equales方法
             var decodedStr = string.Join(",",decoded);
-            if (history.ContainsKey(decodedStr))
+
+            double fitness;
+            if (HistoryRecords.TryGetValue(decodedStr, out fitness))//如果存在历史记录,就返回历史记录
             {
-                return history[decodedStr];
+                return fitness;
             }
             else
             {
@@ -92,6 +96,7 @@ namespace GeneticAlgorithm
                 for (var k = 0; k < f.Length; k++)
                 {
                     finshed.ForEach(i => i.GenR());//随机生成所有船舶实际到达时间ar 和实际作业时间pr
+                    
                     foreach (var i in finshed) //todo 暂不需要克隆?
                     {
                         int time = Math.Max(i.ar, i.s);
@@ -106,10 +111,11 @@ namespace GeneticAlgorithm
 
                 double mean = f.Average();
                 double devi = StDev(f);
+                
+                fitness = mean + λ * devi;
+                HistoryRecords[decodedStr] = mean + λ * devi;
 
-                history[decodedStr] = mean + λ * devi;
-
-                return mean + λ * devi;
+                return fitness;
             }
         }
     }
