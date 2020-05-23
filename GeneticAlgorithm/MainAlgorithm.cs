@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using static  GeneticAlgorithm.AlgorithmParameter;
 namespace GeneticAlgorithm
@@ -16,9 +17,20 @@ namespace GeneticAlgorithm
         private static List<Chromosome> initialChromosome = Chromosome.initChromsomes();
         static void Main(string[] args)
         {
+            var fullName = new DirectoryInfo("data.txt").FullName;
+            Console.Out.WriteLine(fullName);
+            using (StreamWriter sw = new StreamWriter("data.txt"))
+            {
+                for (int i = 0; i < ships.Count; i++)
+                {
+                    sw.WriteLine("{0}  {1}  {2}  {3}",i,ships[i].a,ships[i].p,ships[i].l);
+                }
+            }
+            
             Algorithm2();
             Algorithm1();
             Algorithm3();//注意 方法三由于没有使用排序,蓑衣使用的是generation.Min()而非其他两个的generation.First()
+            
         }
         private static void Algorithm1()
         {
@@ -80,7 +92,6 @@ namespace GeneticAlgorithm
             TimeSpan ts2 = sw.Elapsed;
             Console.WriteLine("方法1总共花费{0}ms.", ts2.TotalMilliseconds);
             Console.WriteLine("  ");
-            Console.WriteLine("  ");
         }
         private static void Algorithm2()
         {
@@ -136,7 +147,6 @@ namespace GeneticAlgorithm
             ts2 = sw.Elapsed;
             Console.WriteLine("方法2总共花费{0}ms.", ts2.TotalMilliseconds);
             Console.WriteLine("  ");
-            Console.WriteLine("  ");
         }
         private static void Algorithm3()
         {
@@ -190,7 +200,6 @@ namespace GeneticAlgorithm
             sw.Stop();
             ts3 = sw.Elapsed;
             Console.WriteLine("方法GA总共花费{0}ms.", ts3.TotalMilliseconds);
-            Console.WriteLine("  ");
             Console.WriteLine("  ");
         }
         
