@@ -8,7 +8,7 @@ namespace GeneticAlgorithm
     class MainAlgorithm
     {
         //初始化船舶
-        static List<Ship> ships = Ship.InitShips();
+        public static List<Ship> ships = Ship.InitShips();
 
         //历史序列集合
         private static Dictionary<string, double> history = new Dictionary<string, double>();
@@ -22,6 +22,9 @@ namespace GeneticAlgorithm
 
         private static void Algorithm2()
         {
+            if (N % 2 != 0)
+                throw new ArgumentException("种群数量必须为偶数");
+            
             List<Chromosome> generation;
             Stopwatch sw;
             TimeSpan ts2;
@@ -37,7 +40,7 @@ namespace GeneticAlgorithm
                 generation.Sort(); //从小到大排列染色体
                 var elite = generation.GetRange(0, N / 2);
                 //精英 进行 选择 ,交叉,变异
-                elite = Select(elite); //todo 考虑v是奇数的情况
+                elite = Select(elite); 
                 Crossover(elite);
                 Mutation(elite);
 
@@ -73,7 +76,7 @@ namespace GeneticAlgorithm
                 generation.Sort(); //从小到大排列染色体
 
                 //舍弃适应度函数值较大的后2/1染色体
-                generation.RemoveRange(N / 2, N / 2); //todo 考虑v是奇数的情况
+                generation.RemoveRange(N / 2, N / 2);
                 //强化前二分之一
 
                 Intensify(generation, generation.Min());
@@ -203,7 +206,7 @@ namespace GeneticAlgorithm
                   }  
         }
 
-        private static double Fitness(int[] decoded)
+        public static double Fitness(int[] decoded)
         {    
             var decodedStr = string.Join(",",decoded);
             if (history.ContainsKey(decodedStr))
@@ -281,144 +284,6 @@ namespace GeneticAlgorithm
 
                 return mean + λ * devi;
             }
-        }
-        
-        class Chromosome:IComparable<Chromosome> ,ICloneable
-        {
-            public double[] encoded = new double[V];
-
-            public Chromosome()
-            {
-                for (int i =  0; i < encoded.Length; i++)
-                {    
-                    encoded[i] = MyMaths.NextDouble(0, 10);
-                }
-            }
-            public Chromosome(double[] encoded)
-            {
-                this.encoded = (double[]) encoded.Clone();
-            }
-
-            public static List<Chromosome> initChromsomes()
-            {    var chromosomes = new List<Chromosome>();
-                //生成初始染色体
-                for (var i = 0; i < N; i++)
-                    chromosomes.Add(new Chromosome());
-            
-                //手动生成最后一条染色体
-                var shipsOrderByA = ships.OrderBy(s => s.a).ToList();
-                
-                for (int i = 0; i < ships.Count; i++)
-                    chromosomes.Last().encoded[i] = (shipsOrderByA.IndexOf(ships[i]) + 1) / 2.0;
-
-                return chromosomes;
-            }
-            public double GetFitness()
-            {
-                return Fitness(GetDecoded());
-            }
-            
-            //解码染色体
-            public  int[] GetDecoded()
-            {
-                double[] ChromosomeSorted = (double[]) encoded.Clone();
-                Array.Sort(ChromosomeSorted);
-
-                int[] result = new int[V];
-                Dictionary<double,int> lastFind = new Dictionary<double, int>();
-                for (int i = 0; i < result.Length; i++)
-                {
-                    var segment = encoded[i];
-                    int last = 0;
-                    lastFind.TryGetValue(segment, out last);
-                        
-                    result[i] =  Array.IndexOf(ChromosomeSorted, encoded[i], last);
-                    lastFind[segment] = Array.IndexOf(ChromosomeSorted, encoded[i], last) + 1;
-                }
-
-                return result;
-            }
-            
-            //与另一条染色体进行交叉
-            public void Cross(Chromosome chromosome)
-            {
-                int a = ran.Next(V);
-                int b = ran.Next(V);
-
-                for (int i = Math.Min(a, b); i < Math.Max(a, b); i++)
-                {
-                    var temp = encoded[i];
-                    encoded[i] = chromosome.encoded[i];
-                    chromosome.encoded[i] = temp;
-                }
-                
-            } 
-            //变异
-            public void Mutation()
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    var p = ran.NextDouble();
-                    if (p < pm)
-                        encoded[ran.Next(0, V - 1)] = MyMaths.NextDouble(0, 10);
-                }
-            }
-            public int CompareTo(Chromosome other)
-            {    
-                return GetFitness().CompareTo(other.GetFitness());
-            }
-            
-            public Chromosome Clone()
-            {
-                Chromosome chromosome = new Chromosome((double[]) encoded.Clone());
-                return chromosome;
-            }
-             object ICloneable.Clone()
-             {
-                 return Clone();
-             }
-
-             public double this[int i]
-             {
-                 get { return encoded[i]; }
-             }
-        }
-
-    }
-    
-    class Ship
-    {    private static readonly Random ran = new Random();
-
-        public readonly int a = ran.Next(2016);//到达时间
-        public  int ar;//实际到达时间
-        public readonly int p = ran.Next(60, 2016);//作业时间
-        public  int pr;//实际作业时间
-        public readonly int l = ran.Next(10, 15);//长度
-
-        public int b;//停泊位置
-        public int s;//开始作业时间
-        public int sr;//实际开始作业时间
-        
-        public static List<Ship> InitShips()
-        {    List<Ship> ships = new List<Ship>();
-            //生成V艘船并存入列表
-            for (int i = 0; i < V; i++)
-                ships.Add(new Ship());
-
-            return ships;
-        }
-        public int GetD()//离港时间
-        {
-            return s + p;
-        }
-
-        //随机生成船舶实际到达时间ar 和实际作业时间pr ,并计算实际开始作业时间sr
-        public void GenR()
-        {
-            ar = ran.Next(a, a + 30);
-            pr = ran.Next(p - 30, p + 30);
-
-            sr = ar + s - a;
         }
     }
 }

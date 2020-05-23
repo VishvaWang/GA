@@ -8,7 +8,7 @@ namespace GeneticAlgorithm
         public const int V = 20;//船舶数量
         public const int L = 60;//岸线总长度
         public const int T = 2016;//时间总长度
-        public const int N = 200;//遗传算法种群数量
+        public const int N = 200;//遗传算法种群数量 必须为偶数!
         public const int G = 200;//遗传算法执行代数
         public const int M = 10;//仿真实验次数
         public const double λ = 0.1;//适应度函数参数
