@@ -17,8 +17,10 @@ namespace GeneticAlgorithm
         private static List<Chromosome> initialChromosome = Chromosome.initChromsomes();
         static void Main(string[] args)
         {
+            Console.Out.WriteLine(" ");
             var fullName = new DirectoryInfo("data.txt").FullName;
-            Console.Out.WriteLine(fullName);
+            Console.Out.WriteLine("文件完整路径为: " + fullName);
+            Console.Out.WriteLine(" ");
             using (StreamWriter sw = new StreamWriter("data.txt"))
             {
                 for (int i = 0; i < ships.Count; i++)
