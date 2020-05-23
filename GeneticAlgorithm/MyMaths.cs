@@ -7,7 +7,7 @@ namespace GeneticAlgorithm
         //生成保留指定上下界的随机数
         public static double NextDouble(double minValue, double maxValue)
         {
-            return new Random().NextDouble() * (maxValue - minValue) + minValue;
+            return AlgorithmParameter.ran.NextDouble() * (maxValue - minValue) + minValue;
         }
         
         public static double StDev(double[] arrData) //计算标准偏差
