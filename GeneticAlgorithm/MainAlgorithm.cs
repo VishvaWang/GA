@@ -22,7 +22,7 @@ namespace GeneticAlgorithm
         //运行期常量
         private static readonly Random ran = new Random();
         
-        //
+        //初始化船舶
         static List<Ship> ships = Ship.InitShips();
 
         //历史序列集合
@@ -31,10 +31,8 @@ namespace GeneticAlgorithm
         private static List<Chromosome> initialChromosome = Chromosome.initChromsomes();
         static void Main(string[] args)
         {
-
-            Algorithm1();
-            
             Algorithm2();
+            Algorithm1();
         }
 
         private static void Algorithm2()
@@ -71,7 +69,8 @@ namespace GeneticAlgorithm
             sw.Stop();
             ts2 = sw.Elapsed;
             Console.WriteLine("方法2总共花费{0}ms.", ts2.TotalMilliseconds);
-            Console.WriteLine("");
+            Console.WriteLine("  ");
+            Console.WriteLine("  ");
         }
 
         private static void Algorithm1()
@@ -115,7 +114,8 @@ namespace GeneticAlgorithm
             sw.Stop();
             TimeSpan ts2 = sw.Elapsed;
             Console.WriteLine("方法1总共花费{0}ms.", ts2.TotalMilliseconds);
-            Console.WriteLine("");
+            Console.WriteLine("  ");
+            Console.WriteLine("  ");
         }
 
         private static List<Chromosome> Copy(List<Chromosome> chromosomeList)
@@ -145,7 +145,7 @@ namespace GeneticAlgorithm
             List<int> needChromosomeIndexs = new List<int>();
             for (int i = 0; i < waitCrossover.Count - 1; i++)
             {
-                double p = NextDouble(0, 1);
+                double p = MyMaths.NextDouble(0, 1);
                 if (p < pc)
                     needChromosomeIndexs.Add(i);
             }
@@ -290,38 +290,12 @@ namespace GeneticAlgorithm
                 }
 
                 double mean = f.Average();
-                double devi = StDev(f);
+                double devi = MyMaths.StDev(f);
 
                 history[decodedStr] = mean + λ * devi;
 
                 return mean + λ * devi;
             }
-        }
-
-        //生成保留指定上下界的随机数
-        public static double NextDouble(double minValue, double maxValue)
-        {
-            return ran.NextDouble() * (maxValue - minValue) + minValue;
-        }
-        
-        public static double StDev(double[] arrData) //计算标准偏差
-        {
-            double xSum = 0F;
-            double xAvg = 0F;
-            double sSum = 0F;
-            double tmpStDev = 0F;
-            int arrNum = arrData.Length;
-            for (int i = 0; i < arrNum; i++)
-            {
-                xSum += arrData[i];
-            }
-            xAvg = xSum / arrNum;
-            for (int j = 0; j < arrNum; j++)
-            {
-                sSum += ((arrData[j] - xAvg) * (arrData[j] - xAvg));
-            }
-            tmpStDev = Convert.ToSingle(Math.Sqrt((sSum / (arrNum - 1))).ToString());
-            return tmpStDev;
         }
         
         class Chromosome:IComparable<Chromosome> ,ICloneable
@@ -332,7 +306,7 @@ namespace GeneticAlgorithm
             {
                 for (int i =  0; i < encoded.Length; i++)
                 {    
-                    encoded[i] = NextDouble(0, 10);
+                    encoded[i] = MyMaths.NextDouble(0, 10);
                 }
             }
             public Chromosome(double[] encoded)
@@ -401,7 +375,7 @@ namespace GeneticAlgorithm
                 {
                     var p = ran.NextDouble();
                     if (p < pm)
-                        encoded[ran.Next(0, V - 1)] = NextDouble(0, 10);
+                        encoded[ran.Next(0, V - 1)] = MyMaths.NextDouble(0, 10);
                 }
             }
             public int CompareTo(Chromosome other)
