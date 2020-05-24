@@ -5,16 +5,19 @@ namespace GeneticAlgorithm
     public class AlgorithmParameter
     {
         //编译器常量
-        public const int V = 20;//船舶数量
+        public const int V = 15;//船舶数量
         public const int L = 60;//岸线总长度
         public const int T = 300;//时间总长度
-        public const int N = 200;//遗传算法种群数量 必须为偶数!
-        public const int G = 200;//遗传算法执行代数
-        public const int M = 10;//仿真实验次数
-        public const double λ = 0.1;//适应度函数参数
-        public const double pc = 0.4;//遗传算法交叉概率
-        public const double pm = 0.1;//遗传算法变异概率
+        public const int N = 50;//遗传算法种群数量 必须为偶数!
+        public const int G = 10;//遗传算法执行代数
+        public const int M = 1;//仿真实验次数
+        
+        public const double λ = 1;//适应度函数参数
+        public const double pc = 0.8;//遗传算法交叉概率
+        public const double pc1 = 1.1;//遗传算法交叉概率
+        public const double pm = 0.8;//遗传算法变异概率
         public const int Q = 20;//强化算法执行代数
+        public const double Pag = 0;//随机生成船舶到达时间操作
         
         public const int ArrivalTimeUpper = 250;//船舶到达时间上界
         public const int ProductionTimeUpper = 48;//作业时间上界

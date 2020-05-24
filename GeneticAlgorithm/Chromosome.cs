@@ -44,16 +44,29 @@ namespace GeneticAlgorithm
             
             //变异
             public static void Mutation(List<Chromosome> waitMutation)
-            {    //排序,便于找出cBest 
+            {
+                Console.Out.WriteLine(waitMutation.Min().GetFitness());
+                //排序,便于找出cBest 
                 waitMutation.Sort();
+                var a = waitMutation.Min();
+
+                for (int i = 1; i < waitMutation.Count - 1; i++)
+                {
+                    var b = System.Object.ReferenceEquals(a, waitMutation[i]);
+                }
+                
+                
                 //对每个染色体执行变异
                 waitMutation
                     .Skip(1)// 跳过第一个,即 cBest
                     .ToList()
                     .ForEach(chromosome => chromosome.Mutation());
+                
+                Console.Out.WriteLine(waitMutation.Min().GetFitness());
+
             }
             //交叉
-            public static void Crossover(List<Chromosome> waitCrossover)
+            public static void Crossover(List<Chromosome> waitCrossover, List<Chromosome> generation)
             {
                 //cBest 不参与交叉
                 waitCrossover.Sort();
@@ -89,6 +102,80 @@ namespace GeneticAlgorithm
                 //加入cBest
                 waitCrossover.Add(cBest);
             }
+            public static void Crossover(List<Chromosome> waitCrossover)
+            {
+                //cBest 不参与交叉
+                waitCrossover.Sort();
+                var cBest = waitCrossover.First();
+                waitCrossover.RemoveAt(0);
+            
+                //需要交叉的染色体序号
+                List<int> needChromosomeIndexs = new List<int>();
+                for (int i = 0; i < waitCrossover.Count - 1; i++)
+                {
+                    double p = MyMaths.NextDouble(0, 1);
+                    if (p < pc)
+                        needChromosomeIndexs.Add(i);
+                }
+                
+                //交叉数量不为偶数
+                if (needChromosomeIndexs.Count % 2 != 0)
+                    needChromosomeIndexs.Add(waitCrossover.Count - 1);
+                
+                //进行交叉,直至全部交叉完成
+                while (needChromosomeIndexs.Count != 0)
+                {
+                    var index1 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
+                    var index2 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
+                
+                    Chromosome chromosome = waitCrossover[index1];
+                    chromosome.Cross(waitCrossover[index2]);
+                
+                    needChromosomeIndexs.Remove(index1);
+                    needChromosomeIndexs.Remove(index2);
+                }
+
+                var a = 0;
+                //加入cBest
+                waitCrossover.Add(cBest);
+            }
+            
+            public static void Crossover1(List<Chromosome> waitCrossover)
+            {
+                //cBest 不参与交叉
+                waitCrossover.Sort();
+                var cBest = waitCrossover.First();
+                waitCrossover.RemoveAt(0);
+            
+                //需要交叉的染色体序号
+                List<int> needChromosomeIndexs = new List<int>();
+                for (int i = 0; i < waitCrossover.Count - 1; i++)
+                {
+                    double p = MyMaths.NextDouble(0, 1);
+                    if (p < pc1)
+                        needChromosomeIndexs.Add(i);
+                }
+                
+                //交叉数量不为偶数
+                if (needChromosomeIndexs.Count % 2 != 0)
+                    needChromosomeIndexs.Add(waitCrossover.Count - 1);
+                
+                //进行交叉,直至全部交叉完成
+                while (needChromosomeIndexs.Count != 0)
+                {
+                    var index1 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
+                    var index2 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
+                
+                    Chromosome chromosome = waitCrossover[index1];
+                    chromosome.Cross(waitCrossover[index2]);
+                
+                    needChromosomeIndexs.Remove(index1);
+                    needChromosomeIndexs.Remove(index2);
+                }
+                
+                //加入cBest
+                waitCrossover.Add(cBest);
+            }
             //选择
             public static List<Chromosome> Select(List<Chromosome> chromosomes)
             {    
@@ -99,7 +186,7 @@ namespace GeneticAlgorithm
                 
                 //随机进行选择
                 while (selected.Count < chromosomes.Count)
-                    selected.Add(chromosomes[Math.Min(ran.Next(0, chromosomes.Count - 1), ran.Next(0, chromosomes.Count - 1))]);
+                    selected.Add(chromosomes[Math.Min(ran.Next(0, chromosomes.Count - 1), ran.Next(0, chromosomes.Count - 1))].Clone());
 
                 return selected;
             }
@@ -149,23 +236,62 @@ namespace GeneticAlgorithm
             
             //解码染色体
             public  int[] GetDecoded()
-            {
+            {    
+
+                //先将染色体排序 
+
                 double[] ChromosomeSorted = (double[]) encoded.Clone();
+
                 Array.Sort(ChromosomeSorted);
 
-                int[] result = new int[V];
-                Dictionary<double,int> lastFind = new Dictionary<double, int>();
-                for (int i = 0; i < result.Length; i++)
-                {
-                    var segment = encoded[i];
-                    int last = 0;
-                    lastFind.TryGetValue(segment, out last);
-                        
-                    result[i] =  Array.IndexOf(ChromosomeSorted, encoded[i], last);
-                    lastFind[segment] = Array.IndexOf(ChromosomeSorted, encoded[i], last) + 1;
+                
+
+                //存放船舶序列
+
+                int[] shipsSeq = new int[V];
+
+                
+
+                //用来存放某个数字上次出现的位置,如果上次已经出现过,就从上次出现过的位置 + 1 开始寻找
+
+                Dictionary<double,int> numLastOccurrenceIndex = new Dictionary<double, int>();
+
+                
+
+                for (int I = 0; I < shipsSeq.Length; I++)
+
+                {    
+
+                    //当前基因片段数字
+
+                    var segmentNum = encoded[I];
+
+                    
+
+                    //默认从0开始寻找
+
+                    int startIndex = 0;
+
+                    //如果字典中已经存有上次的值,将startIndex设为上次的值
+
+                    numLastOccurrenceIndex.TryGetValue(segmentNum, out startIndex);
+
+                      
+
+                    //设定对应基因片段的船舶序列
+
+                    shipsSeq[I] =  Array.IndexOf(ChromosomeSorted, encoded[I], startIndex);
+
+                    //更新这个基因片段数字下次寻找时的开始位置
+
+                    numLastOccurrenceIndex[segmentNum] = Array.IndexOf(ChromosomeSorted, encoded[I], startIndex) + 1;
+
                 }
 
-                return result;
+
+
+                return shipsSeq;
+
             }
             
             //与另一条染色体进行交叉

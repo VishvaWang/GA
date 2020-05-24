@@ -5,7 +5,8 @@ using static  GeneticAlgorithm.AlgorithmParameter;
 namespace GeneticAlgorithm
 {
     class Ship
-    {    private static readonly Random ran = new Random();
+    {    
+        private static readonly Random ran = new Random();
 
         public readonly int a = ran.Next(ArrivalTimeUpper);//到达时间
         public  int ar;//实际到达时间
@@ -33,10 +34,19 @@ namespace GeneticAlgorithm
         //随机生成船舶实际到达时间ar 和实际作业时间pr ,并计算实际开始作业时间sr
         public void GenR()
         {
-            ar = ran.Next(a, RealArrivalTimeUpper);
-            pr = ran.Next(RealProductionTimeLower, RealArrivalTimeUpper);
+            double pp1 = ran.Next(1);
+            double pp2 = ran.Next(1);
+            if (pp1 < Pag)
+                ar = ran.Next(a, RealArrivalTimeUpper);
+            else
+                ar = a;
+            if (pp2 < Pag)
+                pr = ran.Next(RealProductionTimeLower, RealProductionTimeUpper);
+            else
+                pr = p;
+            
 
-            sr = s;
+            //sr = s;
         }
     }
 }

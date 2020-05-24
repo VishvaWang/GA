@@ -30,7 +30,7 @@ namespace GeneticAlgorithm
             {
                 sSum += ((arrData[j] - xAvg) * (arrData[j] - xAvg));
             }
-            tmpStDev = Convert.ToSingle(Math.Sqrt((sSum / (arrNum - 1))).ToString());
+            tmpStDev = Convert.ToSingle(Math.Sqrt((sSum / arrNum)).ToString());
             return tmpStDev;
         }
         
@@ -81,7 +81,7 @@ namespace GeneticAlgorithm
                             }
 
                             i.b = j.b + j.l;
-                            B = A.FindAll(j => j.b < i.b + i.l && j.b + j.l > i.b);
+                            //B = A.FindAll(j => j.b < i.b + i.l && j.b + j.l > i.b);
                         }
                     }
 
@@ -92,13 +92,14 @@ namespace GeneticAlgorithm
 
                 double[] f = new double[M];
                 finshed.OrderBy(i => i.s);//按照si从小到大排列船舶
-                
+
                 for (var k = 0; k < f.Length; k++)
                 {
                     finshed.ForEach(i => i.GenR());//随机生成所有船舶实际到达时间ar 和实际作业时间pr
                     
                     foreach (var i in finshed) //todo 暂不需要克隆?
                     {
+                        i.sr = 0;
                         int time = Math.Max(i.ar, i.s);
                         List<Ship> A = finshed.FindAll(j => j.GetD() > i.a && j.b < i.b + i.l && j.b + j.l > i.b);
                         if (time < A.Max(j => j.sr + j.pr))
@@ -106,6 +107,7 @@ namespace GeneticAlgorithm
 
                         i.sr = time;
                         f[k] = f[k] + i.sr + i.pr - i.ar;
+                        //Console.WriteLine("Sr:" + i.sr+",ar:"+i.ar+";pr:"+i.pr+";S:"+i.s);
                     }
                 }
 
@@ -114,7 +116,8 @@ namespace GeneticAlgorithm
                 
                 fitness = mean + λ * devi;
                 HistoryRecords[decodedStr] = mean + λ * devi;
-
+                //Console.WriteLine("Mean" + mean);
+                //Console.WriteLine("devi" + devi);
                 return fitness;
             }
         }
