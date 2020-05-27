@@ -28,10 +28,10 @@ namespace GeneticAlgorithm
                     sw.WriteLine("{0}    {1}    {2}    {3}", i + 1, ships[i].a, ships[i].l, ships[i].p);
                 }
             }
-            
-            Algorithm2();
+            Algorithm3();
             //Algorithm1();
-            //Algorithm3();//注意 方法三由于没有使用排序,所以使用的是generation.Min()而非其他两个的generation.First()
+            //Algorithm2();
+            //注意 方法三由于没有使用排序,所以使用的是generation.Min()而非其他两个的generation.First()
             
         }
         private static void Algorithm1()
@@ -58,6 +58,7 @@ namespace GeneticAlgorithm
                     }
                     else
                     {
+                        Console.WriteLine("未改进代数："+noIm);
                         noIm = 0;
                     }
 
@@ -89,7 +90,7 @@ namespace GeneticAlgorithm
             }
 
             generation.Sort();
-            Console.WriteLine("方法1最优染色体编码为: " + string.Join(",", generation.First().encoded));
+            //Console.WriteLine("方法1最优染色体编码为: " + string.Join(",", generation.First().encoded));
             Console.WriteLine("方法1最优染色体序列为: " + string.Join(",", generation.First().GetDecoded()));
             Console.WriteLine("方法1最优适应函数值为: " + generation.First().GetFitness());
             Console.WriteLine("最优适应函数值为: " + HistoryRecords.Values.Min());
@@ -133,7 +134,7 @@ namespace GeneticAlgorithm
                     }
 
                 }
-                
+                //Console.WriteLine("未改进代数：" + noIm);
                 if (noIm >= MaxGenerationNoImproved)//
                 {
                     Console.WriteLine("代数：" + i);
@@ -144,23 +145,26 @@ namespace GeneticAlgorithm
                 var elite = generation.GetRange(0, N / 2);
                 var ordinary = generation.GetRange(N/2, N/2);
                 
-                Console.WriteLine("代数：" + i);
+                //Console.WriteLine("代数：" + i);
 
-                Console.WriteLine("目前代最优适应函数值为: " + generation.Min().GetFitness());
-                Console.WriteLine("目前精英最优适应函数值为: " + elite.Min().GetFitness());
+                //Console.WriteLine("目前代最优适应函数值为: " + generation.Min().GetFitness());
+                //Console.WriteLine("目前代第一适应函数值为: " + generation.First().GetFitness());
+                //Console.WriteLine("目前代最差适应函数值为: " + generation.Last().GetFitness());
+                //Console.WriteLine("方法2最优染色体序列为: " + string.Join(",", generation.Last().GetDecoded()));
+                //Console.WriteLine("目前精英最优适应函数值为: " + elite.Min().GetFitness());
                 //精英 进行 选择 ,交叉,变异
                 elite = Chromosome.Select(elite);
-                Console.WriteLine("目前代最优适应函数值为: " + generation.Min().GetFitness());
-                Console.WriteLine("目前精英最优适应函数值为: " + elite.Min().GetFitness());
+               // Console.WriteLine("目前代最优适应函数值为: " + generation.Min().GetFitness());
+                //Console.WriteLine("目前精英最优适应函数值为: " + elite.Min().GetFitness());
 
                 Chromosome.Crossover(elite);
-                Console.WriteLine("目前代最优适应函数值为: " + generation.Min().GetFitness());
-                Console.WriteLine("目前精英最优适应函数值为: " + elite.Min().GetFitness());
+               // Console.WriteLine("目前代最优适应函数值为: " + generation.Min().GetFitness());
+               // Console.WriteLine("目前精英最优适应函数值为: " + elite.Min().GetFitness());
 
 
                 Chromosome.Mutation(elite);
-                Console.WriteLine("目前代最优适应函数值为: " + generation.Min().GetFitness());
-                Console.WriteLine("目前精英最优适应函数值为: " + elite.Min().GetFitness());
+                //Console.WriteLine("目前代最优适应函数值为: " + generation.Min().GetFitness());
+                //Console.WriteLine("目前精英最优适应函数值为: " + elite.Min().GetFitness());
 
 
                 Chromosome.Intensify(ordinary, elite.Min());
@@ -169,15 +173,15 @@ namespace GeneticAlgorithm
                 generation.AddRange(elite);
                 generation.AddRange(ordinary);
                 
-                Console.WriteLine("目前代最优适应函数值为: " + generation.Min().GetFitness());
-                Console.WriteLine("目前精英最优适应函数值为: " + elite.Min().GetFitness());
+               // Console.WriteLine("目前代最优适应函数值为: " + generation.Min().GetFitness());
+                //Console.WriteLine("目前精英最优适应函数值为: " + elite.Min().GetFitness());
 
-                Console.WriteLine("  ");
+                //Console.WriteLine("  ");
 
             }
 
             generation.Sort();
-            Console.WriteLine("方法2最优染色体编码为: " + string.Join(",", generation.First().encoded));
+           // Console.WriteLine("方法2最优染色体编码为: " + string.Join(",", generation.First().encoded));
             Console.WriteLine("方法2最优染色体序列为: " + string.Join(",", generation.First().GetDecoded()));
             Console.WriteLine("方法2最优适应函数值为: " + generation.First().GetFitness());
             Console.WriteLine("最优适应函数值为: " + HistoryRecords.Values.Min());
@@ -206,10 +210,17 @@ namespace GeneticAlgorithm
 
             for (int i = 0, noIm = 0; i < G; i++)
             {    
+                Console.WriteLine("代数：" + i);
                 generation.Sort(); //从小到大排列染色体
-                Console.WriteLine("方法GA最优染色体编码为: " + string.Join(",", generation.First().encoded));
-                Console.WriteLine("方法GA最优适应函数值为: " + generation.First().GetFitness());
-                
+
+                // for (int jj = 0; jj < N; jj++)
+                // {
+                //     Console.WriteLine("No."+jj+":"+ string.Join(",", generation[jj].encoded));
+                //     Console.WriteLine("No."+jj+":"+ string.Join(",",generation[jj].GetDecoded()));
+                // }
+                //Console.WriteLine("方法GA最优染色体编码为: " + string.Join(",", generation.First().encoded));
+                // Console.WriteLine("方法GA最优适应函数值为: " + lastMin);
+                //Console.WriteLine("代数1：" + i);
                 if (i != 0)//至少执行一次
                 {
                     if (lastMin - generation.First().GetFitness() <= NoImprovedCriticalCondition)//如果没有改进,计数加一
@@ -218,6 +229,7 @@ namespace GeneticAlgorithm
                     }
                     else
                     {
+                        Console.WriteLine("未改进代数："+noIm);
                         noIm = 0;
                     }
 
@@ -233,14 +245,19 @@ namespace GeneticAlgorithm
                 var elite = generation.GetRange(0, N);
                 //精英 进行 选择 ,交叉,变异
                 elite = Chromosome.Select(elite);
+                //Console.WriteLine("代数2：" + i);
                 Chromosome.Crossover(elite);
+                //Console.WriteLine("代数3：" + i);
                 Chromosome.Mutation(elite);
-
+                //Console.WriteLine("代数4：" + i);
+                generation.Clear();
+                generation.AddRange(elite);
                 //Chromosome.Intensify(generation.GetRange(N / 2, N / 2), generation.Min());
+               
             }
 
             generation.Sort();
-            Console.WriteLine("方法GA最优染色体编码为: " + string.Join(",", generation.First().encoded));
+           // Console.WriteLine("方法GA最优染色体编码为: " + string.Join(",", generation.First().encoded));
             Console.WriteLine("方法GA最优染色体序列为: " + string.Join(",", generation.First().GetDecoded()));
             Console.WriteLine("方法GA最优适应函数值为: " + generation.First().GetFitness());
             Console.WriteLine("最优适应函数值为: " + HistoryRecords.Values.Min());

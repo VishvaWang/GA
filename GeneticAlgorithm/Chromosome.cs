@@ -45,7 +45,7 @@ namespace GeneticAlgorithm
             //变异
             public static void Mutation(List<Chromosome> waitMutation)
             {
-                Console.Out.WriteLine(waitMutation.Min().GetFitness());
+                //Console.Out.WriteLine(waitMutation.Min().GetFitness());
                 //排序,便于找出cBest 
                 waitMutation.Sort();
                 var a = waitMutation.Min();
@@ -68,7 +68,7 @@ namespace GeneticAlgorithm
             //交叉
             public static void Crossover(List<Chromosome> waitCrossover, List<Chromosome> generation)
             {
-                //cBest 不参与交叉
+                // cBest 不参与交叉
                 waitCrossover.Sort();
                 var cBest = waitCrossover.First();
                 waitCrossover.RemoveAt(0);
@@ -108,10 +108,17 @@ namespace GeneticAlgorithm
                 waitCrossover.Sort();
                 var cBest = waitCrossover.First();
                 waitCrossover.RemoveAt(0);
-            
+                //Console.WriteLine("cbest:" + string.Join(",", cBest.GetDecoded()));
+                // int[] seq = new int[V];
+                // seq = cBest.GetDecoded();
+                // for (int mm = 0; mm < V; mm++)
+                // {
+                //     Console.WriteLine("基因" + mm + ":" + seq[mm]);
+                // }
+                
                 //需要交叉的染色体序号
                 List<int> needChromosomeIndexs = new List<int>();
-                for (int i = 0; i < waitCrossover.Count - 1; i++)
+                for (int i = 0; i < waitCrossover.Count - 1; i++) 
                 {
                     double p = MyMaths.NextDouble(0, 1);
                     if (p < pc)
@@ -121,31 +128,48 @@ namespace GeneticAlgorithm
                 //交叉数量不为偶数
                 if (needChromosomeIndexs.Count % 2 != 0)
                     needChromosomeIndexs.Add(waitCrossover.Count - 1);
-                
+                Console.WriteLine("待交叉染色体："+waitCrossover.Count);
                 //进行交叉,直至全部交叉完成
                 while (needChromosomeIndexs.Count != 0)
                 {
+                    
                     var index1 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
                     var index2 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
-                
+                    while (index1 == index2) 
+                         index2 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
+                    Console.WriteLine("编号："+index1+","+index2);
+                    //
+                    // Console.WriteLine("第一条"+ string.Join(",", waitCrossover[index1].encoded));
+                    // Console.WriteLine("第二条"+ string.Join(",", waitCrossover[index2].encoded));
+                    Console.WriteLine("第一条"+ string.Join(",", waitCrossover[index1].GetDecoded()));
+                    Console.WriteLine("第二条"+ string.Join(",", waitCrossover[index2].GetDecoded()));
+                    Console.WriteLine("Cross");
+                    
                     Chromosome chromosome = waitCrossover[index1];
                     chromosome.Cross(waitCrossover[index2]);
-                
+                    
+                    // Console.WriteLine("交叉后第一条"+ string.Join(",", waitCrossover[index1].encoded));
+                    // Console.WriteLine("交叉后第二条"+ string.Join(",", waitCrossover[index2].encoded));
+                    
+                    Console.WriteLine("交叉后第一条"+ string.Join(",", waitCrossover[index1].GetDecoded()));
+                    Console.WriteLine("交叉后第二条"+ string.Join(",", waitCrossover[index2].GetDecoded()));
+                    
                     needChromosomeIndexs.Remove(index1);
                     needChromosomeIndexs.Remove(index2);
                 }
-
-                var a = 0;
                 //加入cBest
+                //Console.WriteLine("交叉后染色体："+waitCrossover.Count);
                 waitCrossover.Add(cBest);
+                //Console.WriteLine("cbest:" + string.Join(",", waitCrossover.Last().GetDecoded()));
+                //Console.WriteLine("总染色体："+waitCrossover.Count);
             }
             
             public static void Crossover1(List<Chromosome> waitCrossover)
             {
                 //cBest 不参与交叉
-                waitCrossover.Sort();
-                var cBest = waitCrossover.First();
-                waitCrossover.RemoveAt(0);
+                //waitCrossover.Sort();
+                //var cBest = waitCrossover.First();
+                //waitCrossover.RemoveAt(0);
             
                 //需要交叉的染色体序号
                 List<int> needChromosomeIndexs = new List<int>();
@@ -165,6 +189,8 @@ namespace GeneticAlgorithm
                 {
                     var index1 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
                     var index2 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
+                    while (index1 == index2) 
+                        index2 = needChromosomeIndexs[ran.Next(needChromosomeIndexs.Count)];
                 
                     Chromosome chromosome = waitCrossover[index1];
                     chromosome.Cross(waitCrossover[index2]);
@@ -174,7 +200,7 @@ namespace GeneticAlgorithm
                 }
                 
                 //加入cBest
-                waitCrossover.Add(cBest);
+                //waitCrossover.Add(cBest);
             }
             //选择
             public static List<Chromosome> Select(List<Chromosome> chromosomes)
@@ -182,8 +208,7 @@ namespace GeneticAlgorithm
                 //加入两条best
                 List<Chromosome> selected = new List<Chromosome>();
                 selected.Add(chromosomes.Min().Clone());
-                selected.Add(chromosomes.Min().Clone());
-                
+                //selected.Add(chromosomes.Min().Clone());
                 //随机进行选择
                 while (selected.Count < chromosomes.Count)
                     selected.Add(chromosomes[Math.Min(ran.Next(0, chromosomes.Count - 1), ran.Next(0, chromosomes.Count - 1))].Clone());
@@ -215,10 +240,10 @@ namespace GeneticAlgorithm
                               v[k][i] = 0.729 * (v[k][i] + 2.05 * r1 * (p[k][i] - x[k][i]) +
                                                  2.05 * r2 * (cBest[i] - x[k][i]));
                               x[k][i] = x[k][i] + v[k][i];
-                              if (x[k][i] < 0)
-                                  x[k][i] = 0;
-                              if (x[k][i] > 10)
-                                  x[k][i] = 10;
+                              // if (x[k][i] < 0)
+                              //     x[k][i] = 0;
+                              // if (x[k][i] > 10)
+                              //     x[k][i] = 10;
                           }
           
                           Chromosome y = new Chromosome((double[]) x[k].Clone());//todo 增加GetFitness()静态方法
@@ -299,8 +324,10 @@ namespace GeneticAlgorithm
             {
                 int a = ran.Next(V);
                 int b = ran.Next(V);
-
-                for (int i = Math.Min(a, b); i < Math.Max(a, b); i++)
+                while (a == b)
+                    b = ran.Next(V);
+                //Console.WriteLine("交叉点位："+a+","+b);
+                for (int i = Math.Min(a, b); i <= Math.Max(a, b); i++) 
                 {
                     var temp = encoded[i];
                     encoded[i] = chromosome.encoded[i];
@@ -311,7 +338,9 @@ namespace GeneticAlgorithm
             //变异
             public void Mutation()
             {
-                for (int i = 0; i < 3; i++)
+                //double temp = V / 5;
+                //int mut = (int)Math.Ceiling(temp);
+                for (int i = 0; i < V ; i++) 
                 {
                     var p = ran.NextDouble();
                     if (p < pm)

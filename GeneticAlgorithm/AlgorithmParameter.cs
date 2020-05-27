@@ -5,11 +5,11 @@ namespace GeneticAlgorithm
     public class AlgorithmParameter
     {
         //编译器常量
-        public const int V = 15;//船舶数量
+        public const int V = 10;//船舶数量
         public const int L = 60;//岸线总长度
         public const int T = 300;//时间总长度
-        public const int N = 50;//遗传算法种群数量 必须为偶数!
-        public const int G = 10;//遗传算法执行代数
+        public const int N = 10;//遗传算法种群数量 必须为偶数!
+        public const int G = 3;//遗传算法执行代数
         public const int M = 1;//仿真实验次数
         
         public const double λ = 1;//适应度函数参数
@@ -27,11 +27,11 @@ namespace GeneticAlgorithm
         public const int RealProductionTimeUpper = ProductionTimeUpper + 5;//实际作业时间上界
         public const int RealProductionTimeLower = ProductionTimeLower -5;//实际作业时间下界
         
-        public const int MaxGenerationNoImproved = 10;//
-        public const int NoImprovedCriticalCondition = 1;// 小于等于此数值将认为没有改进
+        public const int MaxGenerationNoImproved = 50;//
+        public const int NoImprovedCriticalCondition = 0;// 小于等于此数值将认为没有改进
         
 
         //运行期常量
-        public static readonly Random ran = new Random();
+        public static readonly Random ran = new Random((int)DateTime.Now.Ticks);
     }
 }
